@@ -21,5 +21,16 @@ func commandInit(_ *cobra.Command, args []string) {
 		return
 	}
 
+	f, err := os.Create(path + "/config.json")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer f.Close()
+
+	f.Chmod(os.ModePerm)
+	f.WriteString(`{"path": "` + path + `"}`)
+
+	fmt.Println(f.Name())
 	fmt.Println("Zoity successfully configured.")
 }
