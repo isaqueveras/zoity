@@ -28,7 +28,11 @@ var (
 )
 
 func Execute() {
-	rootCmd.AddCommand(versionCommand, addServiceCommand)
+	rootCmd.AddCommand(&cobra.Command{
+		Use:   "init",
+		Short: "Use to initialize Zoity configuration",
+		Run:   commandInit,
+	}, versionCommand, addServiceCommand)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
