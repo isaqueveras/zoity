@@ -29,7 +29,7 @@ func commandInit(_ *cobra.Command, args []string) {
 	defer f.Close()
 
 	f.Chmod(os.ModePerm)
-	f.WriteString(`{"path": "` + path + `"}`)
+	f.WriteString(`{"path_zoity": "` + path + `"}`)
 
 	fmt.Println(f.Name())
 	fmt.Println("Zoity successfully configured.")
