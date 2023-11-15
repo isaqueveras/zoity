@@ -23,6 +23,12 @@ Flags:
 Use &quot;zoity [command] --help&quot; for more information about a command.
 </pre>
 
+## Init Zoity
+
+<pre><font color="#26A269"><b>isaque@veras</b></font>:<font color="#12488B"><b>~</b></font>$ zoity init
+zoity:<font color="#26A269"><b> Zoity successfully configured.</b></font>
+</pre>
+
 ## Add service
 
 <pre><font color="#26A269"><b>isaque@veras</b></font>:<font color="#12488B"><b>~</b></font>$ zoity add --name powersso --command &quot;go run main.go&quot; --path ~/path/powersso
