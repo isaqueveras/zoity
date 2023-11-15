@@ -2,22 +2,24 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
-	"log"
+	"os"
+	"time"
 )
 
 type Root struct {
-	PathZoity string     `json:"path_zoity"`
 	Services  []Service  `json:"services"`
 	Sequences []Sequence `json:"sequences"`
 }
 
 type Service struct {
-	Id      string `json:"id"`
-	Name    string `json:"name"`
-	Command string `json:"command"`
-	Path    string `json:"path"`
-	Port    string `json:"port"`
+	Id        string    `json:"id"`
+	Name      string    `json:"name"`
+	Command   string    `json:"command"`
+	Path      string    `json:"path"`
+	Port      string    `json:"port"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type Sequence struct {
@@ -28,14 +30,22 @@ type Sequence struct {
 func getConfig() (config *Root) {
 	raw, err := ioutil.ReadFile(pathRoot + "/config.json")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return
 	}
 
 	if err = json.Unmarshal(raw, &config); err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return
 	}
 
 	return config
 }
 
-func addConfig() {}
+func updateConfig(cfg *Root) error {
+	bytes, err := json.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(pathRoot+"/config.json", bytes, os.ModePerm)
+}

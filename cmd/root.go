@@ -26,11 +26,19 @@ func Execute() {
 		},
 	})
 
-	cli.AddCommand(&cobra.Command{
-		Use:   "add",
-		Short: "Configure a service",
-		Run:   func(cmd *cobra.Command, args []string) {},
-	})
+	commandAddService := &cobra.Command{
+		Use:     "add",
+		Short:   "Add a service",
+		Run:     addService,
+		Example: `zoity --name myservice --port 8987 --command "go run *.go" --path ~/path-your-service`,
+	}
+
+	commandAddService.Flags().String("name", "", "Name of your service")
+	commandAddService.Flags().String("port", "", "Port of your service")
+	commandAddService.Flags().String("path", "", "Path of your service")
+	commandAddService.Flags().String("command", "", "Command of your service")
+
+	cli.AddCommand(commandAddService)
 
 	cli.AddCommand(&cobra.Command{
 		Use:   "services",
