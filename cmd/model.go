@@ -3,7 +3,6 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"time"
 )
@@ -28,7 +27,7 @@ type Sequence struct {
 }
 
 func getConfig() (config *Root) {
-	raw, err := ioutil.ReadFile(pathRoot + "/config.json")
+	raw, err := os.ReadFile(pathRoot + "/config.json")
 	if err != nil {
 		fmt.Println(err)
 		return
