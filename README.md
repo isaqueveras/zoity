@@ -2,8 +2,7 @@
 Zoity is an orchestrator for configuring and running services locally.
 
 ## Commands
-
-<pre><font color="#26A269"><b>isaque@veras</b></font>:<font color="#12488B"><b>~</b></font>$ zoity
+<pre><font color="#26A269"><b>isaque@veras</b></font>:<font color="#12488B"><b>~</b></font>$ zoity 
 Zoity is an orchestrator for configuring and running services locally.
 
 Usage:
@@ -14,6 +13,7 @@ Available Commands:
   completion  Generate the autocompletion script for the specified shell
   help        Help about any command
   init        Use to initialize Zoity configuration
+  run         run service
   services    get services
   version     
 
@@ -27,6 +27,14 @@ Use &quot;zoity [command] --help&quot; for more information about a command.
 
 <pre><font color="#26A269"><b>isaque@veras</b></font>:<font color="#12488B"><b>~</b></font>$ zoity add --name powersso --port 4747 --command &quot;go run main.go&quot; --path ~/path/powersso
 zoity: service configured successfully
+</pre>
+
+## Run services
+
+<pre><font color="#26A269"><b>isaque@veras</b></font>:<font color="#12488B"><b>~</b></font>$ zoity run powersso-ui powersso powersso-test
+zoity:<font color="#26A269"><b> pid=140108: the powersso-ui service has been initialized</b></font>
+zoity:<font color="#26A269"><b> pid=140109: the powersso service has been initialized</b></font>
+zoity:<font color="#C01C28"><b> service powersso-test not found</b></font>
 </pre>
 
 ## List services
