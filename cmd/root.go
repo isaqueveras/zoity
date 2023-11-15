@@ -29,7 +29,7 @@ func Execute() {
 	commandAddService := &cobra.Command{
 		Use:     "add",
 		Short:   "Add a service",
-		Run:     addService,
+		Run:     add,
 		Example: `zoity --name myservice --port 8987 --command "go run *.go" --path ~/path-your-service`,
 	}
 
@@ -43,7 +43,14 @@ func Execute() {
 	cli.AddCommand(&cobra.Command{
 		Use:   "services",
 		Short: "get services",
-		Run:   getServices,
+		Run:   get,
+	})
+
+	cli.AddCommand(&cobra.Command{
+		Use:     "run",
+		Short:   "run service",
+		Example: `zoity run powersso powersso-ui`,
+		Run:     run,
 	})
 
 	if err := cli.Execute(); err != nil {

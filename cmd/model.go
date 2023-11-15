@@ -12,6 +12,15 @@ type Root struct {
 	Sequences []Sequence `json:"sequences"`
 }
 
+func (r *Root) searchByName(name string) *Service {
+	for _, service := range r.Services {
+		if service.Name == name {
+			return &service
+		}
+	}
+	return nil
+}
+
 type Service struct {
 	Id        string    `json:"id"`
 	Name      string    `json:"name"`

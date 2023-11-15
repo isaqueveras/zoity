@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"os"
+	"os/exec"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -37,16 +38,16 @@ func commandInit(_ *cobra.Command, _ []string) {
 	fmt.Println("Zoity successfully configured.")
 }
 
-func getServices(_ *cobra.Command, _ []string) {
+func get(_ *cobra.Command, _ []string) {
 	cfg := getConfig()
-	fmt.Printf("\n| %-10s | %-25s | %-10s | %-15s | %-30s|\n", "ID", "NAME", "PORT", "CREATED", "COMMAND")
-	fmt.Println("|------------|---------------------------|------------|-----------------|-------------------------------|")
+	fmt.Printf("| %-10s | %-25s | %-10s | %-22s | %-30s|\n", "ID", "NAME", "PORT", "CREATED", "COMMAND")
+	fmt.Println("|------------|---------------------------|------------|------------------------|-------------------------------|")
 	for _, s := range cfg.Services {
-		fmt.Printf("| %-10s | %-25s | %-10s | %-15s | %-30s|\n", s.Id, s.Name, ":"+s.Port, s.CreatedAt.Local().Format(time.DateOnly), s.Command)
+		fmt.Printf("| %-10s | %-25s | %-10s | %-22s | %-30s|\n", s.Id, s.Name, ":"+s.Port, s.CreatedAt.Local().Format(time.RFC822Z), s.Command)
 	}
 }
 
-func addService(cmd *cobra.Command, _ []string) {
+func add(cmd *cobra.Command, _ []string) {
 	flags := cmd.Flags()
 
 	name, _ := flags.GetString("name")
@@ -99,4 +100,37 @@ func addService(cmd *cobra.Command, _ []string) {
 	}
 
 	fmt.Println("zoity: service configured successfully")
+}
+
+func run(_ *cobra.Command, args []string) {
+	cfg := getConfig()
+
+	for idx := range args {
+		service := cfg.searchByName(args[idx])
+		if service == nil {
+			fmt.Println("zoity:\033[1;31m service " + args[idx] + " not found\033[0m")
+			continue
+		}
+
+		cmd := exec.Command("/bin/bash", "-c", service.Command)
+		cmd.Env, cmd.Dir = os.Environ(), service.Path
+
+		if err := cmd.Start(); err != nil {
+			fmt.Println("zoity:\033[1;31m error running the "+service.Name+" service\033[0m", err.Error())
+			continue
+		}
+
+		// TODO: (@isaqueveras) save the pid in configs
+
+		fmt.Sprintln(fmt.Printf("zoity:\033[1;32m pid=%d: the %s service has been initialized\033[0m\n", cmd.Process.Pid, service.Name))
+	}
+}
+
+// TODO: (@isaqueveras) use to kill process
+func down(_ *cobra.Command, _ []string) {
+	// if err := cmd.Wait(); err != nil {
+	// 	syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+	// 	fmt.Println("zoity: error running the " + service.Name + " service")
+	// 	continue
+	// }
 }
