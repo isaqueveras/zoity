@@ -34,3 +34,12 @@ func commandInit(_ *cobra.Command, args []string) {
 	fmt.Println(f.Name())
 	fmt.Println("Zoity successfully configured.")
 }
+
+func getServices(_ *cobra.Command, _ []string) {
+	cfg := getConfig()
+
+	fmt.Printf("%-10s %-25s %-10s %-15s %-5s\n", "ID", "NAME", "PORT", "COMMAND", "RUNNING")
+	for _, s := range cfg.Services {
+		fmt.Printf("%-10s %-25s %-10s %-15s %-5s\n", s.Id, s.Name, ":"+s.Port, s.Command, "false")
+	}
+}
