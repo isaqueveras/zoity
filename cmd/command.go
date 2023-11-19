@@ -106,11 +106,13 @@ func run(_ *cobra.Command, args []string) {
 	cfg := getConfig()
 
 	for idx := range args {
-		service := cfg.searchByName(args[idx])
+		service := cfg.searchServiceByName(args[idx])
 		if service == nil {
 			fmt.Println("zoity:\033[1;31m service " + args[idx] + " not found\033[0m")
 			continue
 		}
+
+		cfg.killProcess(service.Id)
 
 		cmd := exec.Command("/bin/bash", "-c", service.Command)
 		cmd.Env, cmd.Dir = os.Environ(), service.Path
@@ -120,7 +122,12 @@ func run(_ *cobra.Command, args []string) {
 			continue
 		}
 
-		// TODO: (@isaqueveras) save the pid in configs
+		cfg.addProcess(cmd.Process.Pid, service.Id)
+
+		if err := updateConfig(cfg); err != nil {
+			fmt.Println("zoity:\033[1;31m error adding "+service.Name+" service process\033[0m", err.Error())
+			continue
+		}
 
 		fmt.Sprintln(fmt.Printf("zoity:\033[1;32m pid=%d: the %s service has been initialized\033[0m\n", cmd.Process.Pid, service.Name))
 	}

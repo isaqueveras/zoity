@@ -4,15 +4,31 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"syscall"
 	"time"
 )
 
 type Root struct {
 	Services  []Service  `json:"services"`
 	Sequences []Sequence `json:"sequences"`
+	Processes []Process  `json:"processes"`
 }
 
-func (r *Root) searchByName(name string) *Service {
+func (r *Root) addProcess(pid int, sid string) {
+	r.Processes = append(r.Processes, Process{Pid: pid, Sid: sid, CreatedAt: time.Now()})
+}
+
+func (r *Root) killProcess(sid string) {
+	for i := range r.Processes {
+		if r.Processes[i].Sid == sid {
+			syscall.Kill(-r.Processes[i].Pid, syscall.SIGKILL)
+			// FIXME: (@isaqueveras) delete item of list
+			// r.Processes = slices.Delete(r.Processes, i, i+1)
+		}
+	}
+}
+
+func (r *Root) searchServiceByName(name string) *Service {
 	for _, service := range r.Services {
 		if service.Name == name {
 			return &service
@@ -33,6 +49,12 @@ type Service struct {
 type Sequence struct {
 	Name     string   `json:"name"`
 	Services []string `json:"services"`
+}
+
+type Process struct {
+	Pid       int       `json:"pid"`
+	Sid       string    `json:"sid"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func getConfig() (config *Root) {
