@@ -16,7 +16,7 @@ func Execute() {
 	cli.AddCommand(&cobra.Command{
 		Use:   "init",
 		Short: "Use to initialize Zoity configuration",
-		Run:   commandInit,
+		Run:   initt,
 	})
 
 	cli.AddCommand(&cobra.Command{
@@ -30,11 +30,10 @@ func Execute() {
 		Use:     "add",
 		Short:   "Add a service",
 		Run:     add,
-		Example: `zoity --name myservice --port 8987 --command "go run *.go" --path ~/path-your-service`,
+		Example: `zoity --name myservice --command "./myservice" --path ~/path-your-service`,
 	}
 
 	commandAddService.Flags().String("name", "", "Name of your service")
-	commandAddService.Flags().String("port", "", "Port of your service")
 	commandAddService.Flags().String("path", "", "Path of your service")
 	commandAddService.Flags().String("command", "", "Command of your service")
 
@@ -51,6 +50,13 @@ func Execute() {
 		Short:   "run service",
 		Example: `zoity run powersso powersso-ui`,
 		Run:     run,
+	})
+
+	cli.AddCommand(&cobra.Command{
+		Use:     "down",
+		Short:   "down service",
+		Example: "zoity down powersso powersso-ui",
+		Run:     down,
 	})
 
 	if err := cli.Execute(); err != nil {

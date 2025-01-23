@@ -10,40 +10,29 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const pathRoot = "/etc/zoity"
+const ZOITY_PATH_CONFIG string = "ZOITY_PATH_CONFIG"
 
-func commandInit(_ *cobra.Command, _ []string) {
-	if err := os.MkdirAll(pathRoot, os.ModePerm); err != nil {
-		if err == os.ErrPermission {
-			fmt.Println("zoity: permission denied")
-			return
-		}
-		fmt.Println(err)
+func initt(_ *cobra.Command, _ []string) {
+	root := new()
+	root.load()
+
+	if len(root.Services) != 0 {
+		fmt.Println("error: settings is not empty, try reset command")
 		return
 	}
 
-	file, err := os.Create(pathRoot + "/config.json")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer file.Close()
-	file.Chmod(os.ModePerm)
-
-	if err = updateConfig(&Root{Services: []Service{}, Sequences: []Sequence{}}); err != nil {
-		fmt.Println(err)
-		return
-	}
-
+	root.update()
 	fmt.Println("Zoity successfully configured.")
 }
 
 func get(_ *cobra.Command, _ []string) {
-	cfg := getConfig()
-	fmt.Printf("| %-10s | %-25s | %-10s | %-22s | %-30s|\n", "ID", "NAME", "PORT", "CREATED", "COMMAND")
-	fmt.Println("|------------|---------------------------|------------|------------------------|-------------------------------|")
+	cfg := new()
+	cfg.load()
+
+	fmt.Printf("| %-10s | %-25s | %-22s | %-30s|\n", "ID", "NAME", "CREATED", "COMMAND")
+	fmt.Println("|------------|---------------------------|------------------------|-------------------------------|")
 	for _, s := range cfg.Services {
-		fmt.Printf("| %-10s | %-25s | %-10s | %-22s | %-30s|\n", s.Id, s.Name, ":"+s.Port, s.CreatedAt.Local().Format(time.RFC822Z), s.Command)
+		fmt.Printf("| %-10s | %-25s | %-22s | %-30s|\n", s.Id, s.Name, s.CreatedAt.Local().Format(time.RFC822Z), s.Command)
 	}
 }
 
@@ -68,12 +57,6 @@ func add(cmd *cobra.Command, _ []string) {
 		return
 	}
 
-	port, _ := flags.GetString("port")
-	if port == "" {
-		fmt.Println("zoity: the --port flag is mandatory")
-		return
-	}
-
 	id := func(length int) string {
 		const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz"
 		bytes := make([]byte, length)
@@ -84,26 +67,25 @@ func add(cmd *cobra.Command, _ []string) {
 		return string(bytes)
 	}
 
-	cfg := getConfig()
+	cfg := new()
+	cfg.load()
+
 	cfg.Services = append(cfg.Services, Service{
 		Id:        id(8),
 		Name:      name,
 		Command:   command,
 		Path:      path,
-		Port:      port,
 		CreatedAt: time.Now(),
 	})
 
-	if err := updateConfig(cfg); err != nil {
-		fmt.Println("zoity: " + err.Error())
-		return
-	}
-
+	cfg.update()
 	fmt.Println("zoity: service configured successfully")
 }
 
 func run(_ *cobra.Command, args []string) {
-	cfg := getConfig()
+	cfg := new()
+	cfg.update()
+	cfg.load()
 
 	for idx := range args {
 		service := cfg.searchServiceByName(args[idx])
@@ -112,7 +94,7 @@ func run(_ *cobra.Command, args []string) {
 			continue
 		}
 
-		cfg.killProcess(service.Id)
+		cfg.kill(service.Id)
 
 		cmd := exec.Command("/bin/bash", "-c", service.Command)
 		cmd.Env, cmd.Dir = os.Environ(), service.Path
@@ -122,22 +104,24 @@ func run(_ *cobra.Command, args []string) {
 			continue
 		}
 
-		cfg.addProcess(cmd.Process.Pid, service.Id)
-
-		if err := updateConfig(cfg); err != nil {
-			fmt.Println("zoity:\033[1;31m error adding "+service.Name+" service process\033[0m", err.Error())
-			continue
-		}
+		cfg.add(cmd.Process.Pid, service.Id)
+		cfg.update()
 
 		fmt.Sprintln(fmt.Printf("zoity:\033[1;32m pid=%d: the %s service has been initialized\033[0m\n", cmd.Process.Pid, service.Name))
 	}
 }
 
-// TODO: (@isaqueveras) use to kill process
-func down(_ *cobra.Command, _ []string) {
-	// if err := cmd.Wait(); err != nil {
-	// 	syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
-	// 	fmt.Println("zoity: error running the " + service.Name + " service")
-	// 	continue
-	// }
+func down(_ *cobra.Command, args []string) {
+	cfg := new()
+	cfg.update()
+	cfg.load()
+
+	for _, name := range args {
+		service := cfg.searchServiceByName(name)
+		if service == nil {
+			fmt.Println("zoity:\033[1;31m service " + name + " not found\033[0m")
+			continue
+		}
+		cfg.kill(service.Id)
+	}
 }
