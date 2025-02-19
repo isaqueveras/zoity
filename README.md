@@ -1,54 +1,24 @@
-# zoity
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5ef013b3-b40f-4df7-bd5b-655748f1624f" width="200">
+</p>
+
+<p align="center">
+<strong>A documentation for the <a href="#">Zoity</a></strong><br/>
 Zoity is an orchestrator for configuring and running services locally.
+</p>
 
-## Commands
-<pre><font color="#26A269"><b>isaque@veras</b></font>:<font color="#12488B"><b>~</b></font>$ zoity 
-Zoity is an orchestrator for configuring and running services locally.
+<p align="center">
+  <a href="https://github.com/sponsors/isaqueveras"><img src="https://img.shields.io/github/sponsors/isaqueveras" alt="Sponsors"/></a>
+  <img src="https://img.shields.io/github/go-mod/go-version/isaqueveras/zoity" alt="GitHub go.mod Go version"/>
+  <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/y/isaqueveras/zoity">
+</p>
 
-Usage:
-  zoity [command]
+## Reporting issues
 
-Available Commands:
-  add         Add a service
-  completion  Generate the autocompletion script for the specified shell
-  help        Help about any command
-  init        Use to initialize Zoity configuration
-  run         run service
-  services    get services
-  version     
+The issue tracker for this project [is located here](https://github.com/isaqueveras/zoity/issues).
 
-Flags:
-  -h, --help   help for zoity
+Please report any issues with a sufficient description of the bug or feature request. Ideally, bug reports should be accompanied by a minimal reproduction of the issue.
+Bug reports must specify the [version](https://github.com/isaqueveras/zoity/releases).
 
-Use &quot;zoity [command] --help&quot; for more information about a command.
-</pre>
-
-## Init Zoity
-
-<pre><font color="#26A269"><b>isaque@veras</b></font>:<font color="#12488B"><b>~</b></font>$ zoity init
-zoity:<font color="#26A269"><b> Zoity successfully configured.</b></font>
-</pre>
-
-## Add service
-
-<pre><font color="#26A269"><b>isaque@veras</b></font>:<font color="#12488B"><b>~</b></font>$ zoity add --name powersso --command &quot;go run main.go&quot; --path ~/path/powersso
-zoity:<font color="#26A269"><b> service configured successfully</b></font>
-</pre>
-
-## Run services
-
-<pre><font color="#26A269"><b>isaque@veras</b></font>:<font color="#12488B"><b>~</b></font>$ zoity run powersso-ui powersso powersso-test
-zoity:<font color="#26A269"><b> pid=140108: the powersso-ui service has been initialized</b></font>
-zoity:<font color="#26A269"><b> pid=140109: the powersso service has been initialized</b></font>
-zoity:<font color="#C01C28"><b> service powersso-test not found</b></font>
-</pre>
-
-## List services
-
-<pre><font color="#26A269"><b>isaque@veras</b></font>:<font color="#12488B"><b>~</b></font>$ zoity services
-
-| ID         | NAME                      | CREATED         | COMMAND                       |
-|------------|---------------------------|-----------------|-------------------------------|
-| qvate8n8   | powersso                  | 2023-11-15      | go run *.go                   |
-| v0ko2o6v   | powersso-ui               | 2023-11-15      | npm run start                 |
-</pre>
+## Contributing
+This project is open-source and accepts contributions. See the [contribution guide](https://github.com/isaqueveras/zoity/blob/main/CONTRIBUTING.md) for more information.
