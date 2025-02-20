@@ -1,6 +1,6 @@
 module github.com/isaqueveras/zoity
 
-go 1.23.3
+go 1.23
 
 require (
 	github.com/energye/systray v1.0.2
