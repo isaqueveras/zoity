@@ -33,4 +33,6 @@ func InitConfig() {
 		fmt.Println(err)
 		return
 	}
+
+	TotalServiceRunning = 0
 }
