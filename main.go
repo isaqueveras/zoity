@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"time"
 
 	"github.com/energye/systray"
 
@@ -34,26 +35,6 @@ func stopAllServices() {
 		}
 		service.Kill()
 	}
-}
-
-func startService(service *types.Service) {
-	service.Kill()
-
-	command := exec.Command("bash", "-c", fmt.Sprintf(
-		"%scd %s && %s", service.GetEnv(), service.Path, service.Command,
-	))
-
-	command.Stdout, command.Stderr = os.Stdout, os.Stderr
-	if err := command.Start(); err != nil {
-		fmt.Printf("[ERROR] Error starting service %s: %v\n", service.Name, err)
-		return
-	}
-
-	service.Process = command.Process
-	types.TotalServiceRunning++
-
-	systray.SetIcon(assets.IconActived)
-	log.Println("Starting the service", service.Process.Pid, service.Name, service.Ports)
 }
 
 func createItemsInMenu() {
@@ -97,10 +78,51 @@ func createItemService(idx int, services *[]types.Service) {
 	stopItem.Hide()
 
 	startItem.Click(func() {
-		startService(&types.Services[idx])
+		service.Kill()
+
+		command := exec.Command("bash", "-c", fmt.Sprintf(
+			"%scd %s && %s", service.GetEnv(), service.Path, service.Command,
+		))
+
+		command.Stdout, command.Stderr = os.Stdout, os.Stderr
+		if err := command.Start(); err != nil {
+			fmt.Printf("[ERROR] Error starting service %s: %v\n", service.Name, err)
+			return
+		}
+
+		go func() {
+			if err := command.Wait(); err != nil {
+				time.Sleep(time.Second)
+				if types.Services[idx].Stopped {
+					return
+				}
+
+				service.Kill()
+				item.Uncheck()
+				stopItem.Hide()
+				startItem.Show()
+
+				types.TotalServiceRunning--
+				if types.TotalServiceRunning == 0 {
+					systray.SetIcon(assets.Icon)
+				}
+
+				fmt.Printf("[ERROR] Error during service execution %s: %v\n", service.Name, err.Error())
+				types.Services[idx].Process = nil
+				return
+			}
+		}()
+
+		service.Process = command.Process
+		types.Services[idx].Stopped = false
+		types.TotalServiceRunning++
+
 		item.Check()
 		stopItem.Show()
 		startItem.Hide()
+
+		systray.SetIcon(assets.IconActived)
+		log.Println("Starting the service", service.Process.Pid, service.Name, service.Ports)
 	})
 
 	stopItem.Click(func() {
@@ -116,6 +138,7 @@ func createItemService(idx int, services *[]types.Service) {
 
 		log.Println("Stoping service", service.Name)
 		types.Services[idx].Process = nil
+		types.Services[idx].Stopped = true
 	})
 }
 
