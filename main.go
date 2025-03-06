@@ -91,25 +91,24 @@ func createItemService(idx int, services *[]types.Service) {
 		}
 
 		go func() {
-			if err := command.Wait(); err != nil {
-				time.Sleep(time.Second)
+			if command.Wait() != nil {
+				time.Sleep(time.Second / 2)
 				if types.Services[idx].Stopped {
 					return
 				}
-
+				systray.SetIcon(assets.IconVerify)
+				time.Sleep(time.Second / 2)
 				service.Kill()
 				item.Uncheck()
 				stopItem.Hide()
 				startItem.Show()
-
+				types.Services[idx].Process = nil
 				types.TotalServiceRunning--
 				if types.TotalServiceRunning == 0 {
 					systray.SetIcon(assets.Icon)
+					return
 				}
-
-				fmt.Printf("[ERROR] Error during service execution %s: %v\n", service.Name, err.Error())
-				types.Services[idx].Process = nil
-				return
+				systray.SetIcon(assets.IconActived)
 			}
 		}()
 
