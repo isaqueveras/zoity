@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/energye/systray"
-	"github.com/gen2brain/beeep"
 
 	"github.com/isaqueveras/zoity/assets"
 	"github.com/isaqueveras/zoity/types"
@@ -18,7 +17,6 @@ import (
 func main() {
 	systray.Run(setup, func() {
 		log.Println("Closing Zoity Application")
-		_ = beeep.Notify("Zoity", "Closing Zoity Application", "")
 	})
 }
 
@@ -88,7 +86,6 @@ func createItemService(idx int, services *[]types.Service) {
 
 		command.Stdout, command.Stderr = os.Stdout, os.Stderr
 		if err := command.Start(); err != nil {
-			_ = beeep.Notify("Zoity", fmt.Sprintf("Error starting the %s service", service.Name), "")
 			fmt.Printf("[ERROR] Error starting service %s: %v\n", service.Name, err)
 			return
 		}
@@ -99,7 +96,6 @@ func createItemService(idx int, services *[]types.Service) {
 				if types.Services[idx].Stopped {
 					return
 				}
-				_ = beeep.Notify("Zoity", fmt.Sprintf("An issue was encountered while running the %s service. Please check the service configuration or logs for more details and try again.", service.Name), "")
 				systray.SetIcon(assets.IconVerify)
 				time.Sleep(time.Second / 2)
 				service.Kill()
@@ -156,7 +152,6 @@ func openSettingsFile() {
 		cmd = exec.Command("cmd", "/c", "start", "", types.ConfigFile)
 	default:
 		log.Printf("unsupported operating system: %s\n", runtime.GOOS)
-		_ = beeep.Notify("Zoity", fmt.Sprintf("Unsupported operating system: %s", runtime.GOOS), "")
 	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
