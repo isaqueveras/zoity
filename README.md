@@ -14,6 +14,14 @@ Zoity is an orchestrator for configuring and running services locally.
   <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/isaqueveras/zoity">
 </p>
 
+## Getting started
+
+To perform the installation, you must have Golang installed in the minimum version of v1.23.
+
+```
+go install github.com/isaqueveras/zoity@latest
+```
+
 ## Reporting issues
 
 The issue tracker for this project [is located here](https://github.com/isaqueveras/zoity/issues).
