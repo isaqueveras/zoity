@@ -1,0 +1,15 @@
+all: true
+dir: "resources/gen/generated/mockery/{{.InterfaceDirRelative}}"
+filename: "{{.InterfaceName}}.go"
+force-file-write: false
+formatter: goimports
+log-level: info
+structname: "{{.InterfaceName}}"
+pkgname: "{{.SrcPackageName}}mocks"
+recursive: true
+template: testify
+packages:
+    zoity/services:
+    zoity/application:
+    zoity/domain:
+    zoity/infrastructure:

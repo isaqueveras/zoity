@@ -1,0 +1,79 @@
+services:
+  zoity_postgres:
+    image: postgres:18-alpine
+    restart: no
+    container_name: zoity_postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=zoity
+    ports:
+      - "5432:5432"
+    volumes:
+      - zoity_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - monitor
+
+  zoity_app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.app
+    container_name: zoity_app
+    ports:
+      - "8080:8080"
+    environment:
+      - CGO_ENABLED=0
+      - zoity_DATABASE_HOST=zoity_postgres
+      - APP_ADDRESS=:8080
+    env_file:
+      - .env
+    restart: no
+    depends_on:
+      - zoity_postgres
+    networks:
+      - monitor
+
+  zoity_prometheus:
+    image: prom/prometheus:latest
+    container_name: zoity_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: no
+    networks:
+      - monitor
+
+  zoity_pushgateway:
+    image: prom/pushgateway:latest
+    container_name: zoity_pushgateway
+    ports:
+      - "9091:9091"
+    restart: no
+    networks:
+      - monitor
+
+  zoity_grafana:
+    image: grafana/grafana:latest
+    container_name: zoity_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: no
+    networks:
+      - monitor
+
+networks:
+  monitor:
+    driver: bridge
+
+volumes:
+  zoity_data:

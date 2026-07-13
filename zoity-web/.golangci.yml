@@ -1,0 +1,126 @@
+version: "2"
+linters:
+  default: none
+  enable:
+    - errcheck
+    - ineffassign
+    - unused
+    - bodyclose
+    - depguard
+    - dogsled
+    - funlen
+    - gocritic
+    - gocyclo
+    - mnd
+    - gosec
+    - govet
+    - prealloc
+    - staticcheck
+    - unconvert
+    - unused
+    - unparam
+    - whitespace
+  settings:
+    depguard:
+      rules:
+        logger:
+          deny:
+            # logging is allowed only by logutils.Log,
+            # logrus is allowed to use only in logutils package.
+            - pkg: "github.com/sirupsen/logrus"
+              desc: logging is allowed only by logutils.Log
+    dupl:
+      threshold: 100
+    funlen:
+      lines: -1 # the number of lines (code + empty lines) is not a right metric and leads to code without empty line or one-liner.
+      statements: 50
+    goconst:
+      min-len: 2
+      min-occurrences: 3
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - performance
+        - style
+      disabled-checks:
+        - dupImport # https://github.com/go-critic/go-critic/issues/845
+        - ifElseChain
+        - octalLiteral
+        - whyNoLint
+        - badRegexp
+        - unnamedResult
+        - sloppyReassign
+        - regexpSimplify
+    gocyclo:
+      min-complexity: 15
+    mnd:
+      # don't include the "operation" and "assign"
+      checks:
+        - argument
+        - case
+        - condition
+        - return
+      ignored-numbers:
+        - "0"
+        - "1"
+        - "2"
+        - "3"
+        - "4"
+        - "5"
+        - "6"
+        - "7"
+        - "8"
+        - "9"
+        - "15"
+        - "30"
+        - "60"
+        - "100"
+      ignored-functions:
+        - strings.SplitN
+    govet:
+      settings:
+        printf:
+          funcs:
+            - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
+            - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
+            - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
+            - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
+      disable:
+        - copylocks
+        - shadow
+    lll:
+      line-length: 140
+    misspell:
+      locale: US
+    nolintlint:
+      allow-unused: false # report any unused nolint directives
+      require-explanation: false # don't require an explanation for nolint directives
+      require-specific: false # don't require nolint directives to be specific about which linter is being skipped
+    revive:
+      rules:
+        - name: unexported-return
+          disabled: true
+        - name: unused-parameter
+    staticcheck:
+      checks: ["all", "-ST1000"]
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    warn-unused: true
+    generated: strict
+output:
+  formats:
+    text:
+      print-linter-name: true
+      print-issued-lines: true
+      colors: true
+run:
+  timeout: 5m
+  relative-path-mode: gomod
+  tests: false
+  go: "1.24"
+  concurrency: 4

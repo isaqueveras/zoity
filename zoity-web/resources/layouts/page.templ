@@ -1,0 +1,46 @@
+package layouts
+
+templ Page(title string) {
+  <!DOCTYPE html>
+  <html lang="us">
+
+    <head>
+      <meta charset="UTF-8">
+      <title>{title} - zoity</title>
+
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <script src="https://unpkg.com/htmx.org"></script>
+      <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+
+    <body class="bg-[#B3B3DA] font-sans text-neutral-900 antialiased">
+      <main class="h-[100vh]">
+        <div class="bg-[#c5c4ef] h-full flex justify-center items-start pt-[5%]">
+
+          <div class="w-[90%] max-w-6xl h-[90%] bg-white border border-zinc-500 rounded-t-lg shadow-sm flex flex-col overflow-hidden">
+            <div class="h-9 bg-zinc-100 border-b border-zinc-400 flex items-center px-4 text-xs">
+              <div class="flex items-center gap-2 font-semibold">
+                <div class="w-4 h-4 rounded-full border border-zinc-700 flex items-center justify-center text-[10px]">Z</div>
+                <span>zoity.io</span>
+              </div>
+
+              <nav class="ml-6 flex gap-4 text-zinc-700">
+                <button>File</button>
+                <button>Edit</button>
+                <button>View</button>
+                <button>Help</button>
+              </nav>
+            </div>
+
+            <div class="flex-1 overflow-y-auto">
+              <div class="p-8 space-y-6">
+                { children... }
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </body>
+  </html>
+}
