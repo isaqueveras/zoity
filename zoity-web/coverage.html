@@ -1,0 +1,702 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>application: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">zoity/application/services.go (0.0%)</option>
+				
+				<option value="file1">zoity/cmd/app/main.go (0.0%)</option>
+				
+				<option value="file2">zoity/core/config/config.go (0.0%)</option>
+				
+				<option value="file3">zoity/core/config/database.go (0.0%)</option>
+				
+				<option value="file4">zoity/core/config/logging.go (0.0%)</option>
+				
+				<option value="file5">zoity/core/config/server.go (0.0%)</option>
+				
+				<option value="file6">zoity/core/core.go (0.0%)</option>
+				
+				<option value="file7">zoity/helpers/convert.go (0.0%)</option>
+				
+				<option value="file8">zoity/helpers/web.go (0.0%)</option>
+				
+				<option value="file9">zoity/infrastructure/repositories.go (0.0%)</option>
+				
+				<option value="file10">zoity/services/database/connections.go (0.0%)</option>
+				
+				<option value="file11">zoity/services/database/options.go (0.0%)</option>
+				
+				<option value="file12">zoity/services/database/transaction.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">// Package application provides application management
+package application
+
+import (
+        "zoity/domain"
+        "zoity/infrastructure"
+)
+
+type Services struct {
+        repositories domain.Repositories
+}
+
+// NewService creates a new instance of builder with the given repository
+func NewService() *Services <span class="cov0" title="0">{
+        return &amp;Services{
+                repositories: infrastructure.NewRepositories(),
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">// Package main contains the main function of the app
+package main
+
+import (
+        "log/slog"
+
+        "zoity/core"
+        "zoity/core/config"
+        "zoity/services/database"
+)
+
+func main() <span class="cov0" title="0">{
+        cfg, err := config.NewConfig()
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov0" title="0">app := core.NewApp(cfg)
+
+        // FIXME: conectar ao banco sqlite
+        conn := database.OpenConnections(app)
+        defer conn.CloseConnections()
+
+        if err := app.Router.Run(app.Config.Servers[config.ServerDefault].GetAddress()); err != nil </span><span class="cov0" title="0">{
+                slog.Error("Erro ao inicializar servidor da aplicação")
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">// Package config provides configuration loading and management
+package config
+
+import (
+        "github.com/caarlos0/env/v11"
+        "github.com/joho/godotenv"
+)
+
+var cfg *Config
+
+type ConfigOptions struct {
+        Envs      []string
+        Databases []string
+        Servers   []string
+}
+
+type ConfigOption func(*ConfigOptions)
+
+func WithDatabase(nicks ...string) ConfigOption <span class="cov0" title="0">{
+        return func(co *ConfigOptions) </span><span class="cov0" title="0">{
+                co.Databases = nicks
+        }</span>
+}
+
+func WithServer(nicks ...string) ConfigOption <span class="cov0" title="0">{
+        return func(co *ConfigOptions) </span><span class="cov0" title="0">{
+                co.Servers = nicks
+        }</span>
+}
+
+func WithEnvs(envs ...string) ConfigOption <span class="cov0" title="0">{
+        return func(co *ConfigOptions) </span><span class="cov0" title="0">{
+                co.Envs = envs
+        }</span>
+}
+
+// NewConfig returns a new config
+func NewConfig(opts ...ConfigOption) (*Config, error) <span class="cov0" title="0">{
+        options := ConfigOptions{Envs: []string{".env"}}
+        for _, opt := range opts </span><span class="cov0" title="0">{
+                opt(&amp;options)
+        }</span>
+
+        <span class="cov0" title="0">if err := godotenv.Load(options.Envs...); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">cfg = new(Config)
+        cfg.Databases = make(map[string]Database)
+        cfg.Servers = make(map[string]Server)
+
+        cfg.databases(options.Databases...)
+        cfg.servers(options.Servers...)
+        cfg.logging()
+
+        if err := env.Parse(cfg); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return cfg, nil</span>
+}
+
+// Config represents the application configuration
+type Config struct {
+        Environment string `env:"ENVIRONMENT,required" envDefault:"development"`
+        App         Application
+        Servers     map[string]Server
+        Databases   map[string]Database
+}
+
+// IsProduction returns true if the environment is production
+func (c *Config) IsProduction() bool <span class="cov0" title="0">{
+        return c.Environment == "production"
+}</span>
+
+// IsDevelopment returns true if the environment is development
+func (c *Config) IsDevelopment() bool <span class="cov0" title="0">{
+        return c.Environment == "development"
+}</span>
+
+// IsTesting returns true if the environment is testing
+func (c *Config) IsTesting() bool <span class="cov0" title="0">{
+        return c.Environment == "testing"
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package config
+
+import (
+        "fmt"
+        "log/slog"
+        "strings"
+
+        "github.com/caarlos0/env/v11"
+)
+
+const (
+        DatabaseDefault string = "default"
+)
+
+// Database represents the database connection settings
+type Database struct {
+        Nick      string `env:"DATABASE_NICK" envDefault:"default"`
+        Name      string `env:"DATABASE_NAME"`
+        Username  string `env:"DATABASE_USER" envDefault:"postgres"`
+        Password  string `env:"DATABASE_PASS" envDefault:"postgres"`
+        Host      string `env:"DATABASE_HOST" envDefault:"localhost"`
+        Port      string `env:"DATABASE_PORT" envDefault:"5432"`
+        MaxConn   int    `env:"DATABASE_MAX_CONN" envDefault:"10"`
+        MaxIdle   int    `env:"DATABASE_MAX_IDLE" envDefault:"5"`
+        ReadOnly  bool   `env:"DATABASE_READ_ONLY" envDefault:"false"`
+        Timeout   int32  `env:"DATABASE_TIMEOUT" envDefault:"60"`
+        SSLMode   string `env:"DATABASE_SSL_MODE" envDefault:"disable"`
+        SSLClient SSLCertificate
+}
+
+// SSLCertificate represents the SSL certificate settings
+type SSLCertificate struct {
+        Certificate          string `env:"DATABASE_SSL_CERT"`
+        PrivateKey           string `env:"DATABASE_SSL_KEY"`
+        CertificateAuthority string `env:"DATABASE_SSL_CA"`
+}
+
+// GetDatabase return the database config
+func (c *Config) GetDatabase(nick string) *Database <span class="cov0" title="0">{
+        for idx := range c.Databases </span><span class="cov0" title="0">{
+                if c.Databases[idx].Nick != "" &amp;&amp; c.Databases[idx].Nick == nick </span><span class="cov0" title="0">{
+                        return c.GetDatabase(c.Databases[idx].Nick)
+                }</span>
+        }
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (c *Config) databases(nicks ...string) <span class="cov0" title="0">{
+        if len(nicks) == 0 </span><span class="cov0" title="0">{
+                slog.Warn("Nenhum banco de dados configurado, usando o default")
+                c.databases(DatabaseDefault)
+                return
+        }</span>
+
+        <span class="cov0" title="0">for _, name := range nicks </span><span class="cov0" title="0">{
+                db := &amp;Database{}
+                opts := env.Options{Prefix: fmt.Sprintf("%s_", strings.ToUpper(name))}
+                if err := env.ParseWithOptions(db, opts); err != nil </span><span class="cov0" title="0">{
+                        slog.Error("Error loading database configuration", slog.String("database", name), slog.String("error", err.Error()))
+                        continue</span>
+                }
+                <span class="cov0" title="0">c.Databases[name] = *db
+                slog.Info("Database configured", slog.String("database", name))</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package config
+
+import (
+        "log/slog"
+        "os"
+)
+
+func (c *Config) logging() <span class="cov0" title="0">{
+        var loggHandler slog.Handler = slog.NewJSONHandler(os.Stdout, &amp;slog.HandlerOptions{})
+        if c.IsDevelopment() </span><span class="cov0" title="0">{
+                loggHandler = slog.NewTextHandler(os.Stdout, &amp;slog.HandlerOptions{})
+        }</span>
+        <span class="cov0" title="0">slog.SetDefault(slog.New(loggHandler))</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package config
+
+import (
+        "fmt"
+        "log/slog"
+        "strings"
+
+        "github.com/caarlos0/env/v11"
+)
+
+const (
+        // ServerDefault define o nome da aplicação principal
+        ServerDefault string = "default"
+)
+
+// Server define a estrutura de dados para configurar um servidor
+type Server struct {
+        Host string `env:"SERVER_HOST" envDefault:"localhost"`
+        Port string `env:"SERVER_PORT" envDefault:"8080"`
+}
+
+// GetAddress obtem a url completa de um servidor
+func (s Server) GetAddress() string <span class="cov0" title="0">{
+        return s.Host + ":" + s.Port
+}</span>
+
+func (c *Config) servers(nicks ...string) <span class="cov0" title="0">{
+        if len(nicks) == 0 </span><span class="cov0" title="0">{
+                slog.Warn("Nenhum servidor configurado, usando o default")
+                c.servers(ServerDefault)
+                return
+        }</span>
+
+        <span class="cov0" title="0">for _, name := range nicks </span><span class="cov0" title="0">{
+                server := &amp;Server{}
+                opts := env.Options{Prefix: fmt.Sprintf("%s_", strings.ToUpper(name))}
+                if err := env.ParseWithOptions(server, opts); err != nil </span><span class="cov0" title="0">{
+                        slog.Error("Error loading server configuration", slog.String("server", name), slog.String("error", err.Error()))
+                        continue</span>
+                }
+                <span class="cov0" title="0">c.Servers[name] = *server
+                slog.Info("Server configured", slog.String("server", name))</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package core
+
+import (
+        "zoity/core/config"
+        "zoity/helpers"
+        "zoity/resources/layouts"
+
+        "github.com/gin-gonic/gin"
+)
+
+// App defines the core framework
+type App struct {
+        Config *config.Config
+        Router *gin.Engine
+}
+
+// NewApp returns a new app instance
+func NewApp(cfg *config.Config) *App <span class="cov0" title="0">{
+        r := gin.New()
+
+        r.NoRoute(func(ctx *gin.Context) </span><span class="cov0" title="0">{
+                helpers.Render(ctx, layouts.NotFound())
+        }</span>)
+
+        <span class="cov0" title="0">return &amp;App{Config: cfg, Router: r}</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">// Package helpers contains helper functions
+package helpers
+
+import "os"
+
+// Pointer returns a pointer to the value.
+//
+//        Pointer("foo") // *string("foo")
+//        Pointer(1) // *int(1)
+func Pointer[T any](value T) *T <span class="cov0" title="0">{
+        return &amp;value
+}</span>
+
+// Default returns the first non-zero value.
+// If all values are zero, return the zero value.
+//
+//        Default("", "foo") // "foo"
+//        Default("bar", "foo") // "bar"
+//        Default("", "", "foo") // "foo"
+func Default[T comparable](values ...T) T <span class="cov0" title="0">{
+        var zero T
+        for _, value := range values </span><span class="cov0" title="0">{
+                if value != zero </span><span class="cov0" title="0">{
+                        return value
+                }</span>
+        }
+        <span class="cov0" title="0">return zero</span>
+}
+
+func Env(key string, defaultValue ...string) string <span class="cov0" title="0">{
+        v := os.Getenv(key)
+        if v == "" &amp;&amp; len(defaultValue) &gt; 0 </span><span class="cov0" title="0">{
+                return Default(defaultValue[0])
+        }</span>
+        <span class="cov0" title="0">return v</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package helpers
+
+import (
+        "fmt"
+        "net/http"
+
+        "github.com/a-h/templ"
+        "github.com/gin-gonic/gin"
+)
+
+// Redirect redirects to the given url
+func Redirect(ctx *gin.Context, url string) <span class="cov0" title="0">{
+        ctx.Header("HX-Redirect", url)
+        ctx.Status(http.StatusOK)
+}</span>
+
+// Render renders the given component
+func Render(ctx *gin.Context, component templ.Component) <span class="cov0" title="0">{
+        ctx.Status(http.StatusOK)
+        if err := component.Render(ctx, ctx.Writer); err != nil </span><span class="cov0" title="0">{
+                ctx.Abort()
+        }</span>
+}
+
+// Pagination is used to paginate results.
+type Pagination struct {
+        // Limit is the maximum number of results to return on this page.
+        Limit int
+        // Offset is the number of results to skip from the beginning of the results.
+        // Typically: (page number - 1) * limit.
+        Offset int
+}
+
+func NewPagination(limit, offset int) *Pagination <span class="cov0" title="0">{
+        return &amp;Pagination{Limit: limit, Offset: offset}
+}</span>
+
+// Validate returns an error if the pagination is invalid
+func (p *Pagination) Validate() error <span class="cov0" title="0">{
+        if p.Limit &lt; 1 </span><span class="cov0" title="0">{
+                return fmt.Errorf("pagination limit must be at least 1")
+        }</span>
+        <span class="cov0" title="0">if p.Offset &lt; 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("pagination offset cannot be negative")
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">// Package infrastructure provides infrastructure services and builders
+package infrastructure
+
+type repositories struct{}
+
+// NewRepositories creates a new instance of builder for infrastructure
+func NewRepositories() *repositories <span class="cov0" title="0">{
+        return &amp;repositories{}
+}</span>
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">// Package database provides database connection pooling and transaction management.
+package database
+
+import (
+        "context"
+        "database/sql"
+        "log/slog"
+        "time"
+
+        _ "github.com/mattn/go-sqlite3"
+
+        "zoity/core"
+)
+
+const Default string = "zoity"
+
+type connections struct {
+        databases map[string]*sql.DB
+}
+
+// OpenConnections creates a new connection pool with the given databases
+func OpenConnections(c *core.App) ConnectionPool <span class="cov0" title="0">{
+        var (
+                pool = make(map[string]*sql.DB)
+                err  error
+        )
+
+        for idx := range c.Config.Databases </span><span class="cov0" title="0">{
+                if pool[c.Config.Databases[idx].Nick], err = sql.Open("sqlite3", "./zoity.db"); err != nil </span><span class="cov0" title="0">{
+                        slog.Error("error opening database", "name", c.Config.Databases[idx].Nick, "error", err)
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">pool[c.Config.Databases[idx].Nick].SetMaxOpenConns(c.Config.Databases[idx].MaxConn)
+                pool[c.Config.Databases[idx].Nick].SetMaxIdleConns(c.Config.Databases[idx].MaxIdle)
+                pool[c.Config.Databases[idx].Nick].SetConnMaxIdleTime(5 * time.Minute)
+                pool[c.Config.Databases[idx].Nick].SetConnMaxLifetime(time.Minute * 1)
+
+                if err = pool[c.Config.Databases[idx].Nick].Ping(); err != nil </span><span class="cov0" title="0">{
+                        slog.Error("error ping database", "name", c.Config.Databases[idx].Nick, "error", err)
+                        continue</span>
+                }
+        }
+
+        <span class="cov0" title="0">return &amp;connections{databases: pool}</span>
+}
+
+// CloseConnections closes all connections in the pool
+func (c *connections) CloseConnections() <span class="cov0" title="0">{
+        for _, db := range c.databases </span><span class="cov0" title="0">{
+                if db == nil </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov0" title="0">_ = db.Close()</span>
+        }
+}
+
+// GetDatabase obtem o banco de dados informando um nome ou retorna o padrão
+func (c *connections) GetDatabase(value ...string) *sql.DB <span class="cov0" title="0">{
+        name := Default
+        if len(value) &gt; 0 </span><span class="cov0" title="0">{
+                name = value[0]
+        }</span>
+
+        <span class="cov0" title="0">if db, ok := c.databases[name]; ok &amp;&amp; db != nil </span><span class="cov0" title="0">{
+                return db
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+// NewTransaction starts a new transaction in the database
+func (c *connections) NewTransaction(ctx context.Context, opts ...TxOption) (Transaction, error) <span class="cov0" title="0">{
+        options := defaultTxOptions()
+        for _, opt := range opts </span><span class="cov0" title="0">{
+                opt(&amp;options)
+        }</span>
+
+        <span class="cov0" title="0">txOptions := &amp;sql.TxOptions{
+                Isolation: options.Isolation,
+                ReadOnly:  options.ReadOnly,
+        }
+
+        tx, err := c.GetDatabase(options.Database).BeginTx(ctx, txOptions)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return &amp;transaction{tx: tx}, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package database
+
+import "database/sql"
+
+// TxOptions modela os dados de uma opção de transação
+type TxOptions struct {
+        Database  string
+        ReadOnly  bool
+        Isolation sql.IsolationLevel
+}
+
+func defaultTxOptions() TxOptions <span class="cov0" title="0">{
+        return TxOptions{
+                Database:  Default,
+                ReadOnly:  false,
+                Isolation: sql.LevelDefault,
+        }
+}</span>
+
+// TxOption define o tipo de opções
+type TxOption func(*TxOptions)
+
+// WithIsolation define o nivel de isolação da transação
+func WithIsolation(level sql.IsolationLevel) TxOption <span class="cov0" title="0">{
+        return func(o *TxOptions) </span><span class="cov0" title="0">{
+                o.Isolation = level
+        }</span>
+}
+
+// ReadOnly define que a transação será apenas de leitura
+func ReadOnly() TxOption <span class="cov0" title="0">{
+        return func(o *TxOptions) </span><span class="cov0" title="0">{
+                o.ReadOnly = true
+        }</span>
+}
+
+// WithDatabase define a opção do nome do banco de dados
+func WithDatabase(name string) TxOption <span class="cov0" title="0">{
+        return func(o *TxOptions) </span><span class="cov0" title="0">{
+                o.Database = name
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package database
+
+import (
+        "context"
+        "database/sql"
+        "errors"
+)
+
+type transaction struct {
+        tx *sql.Tx
+}
+
+// Commit commits the transaction to the database
+func (t *transaction) Commit() error <span class="cov0" title="0">{
+        if t.tx == nil </span><span class="cov0" title="0">{
+                return errors.New("transaction is nil")
+        }</span>
+        <span class="cov0" title="0">return t.tx.Commit()</span>
+}
+
+// Rollback rollbacks the transaction from the database
+func (t *transaction) Rollback() <span class="cov0" title="0">{
+        _ = t.tx.Rollback()
+}</span>
+
+// Exec executes a query without returning any rows.
+func (t *transaction) Exec(ctx context.Context, query string, args ...any) (sql.Result, error) <span class="cov0" title="0">{
+        return t.tx.ExecContext(ctx, query, args...)
+}</span>
+
+// QueryRow execute a query that is expected to return at most one row.
+func (t *transaction) QueryRow(ctx context.Context, query string, args ...any) *sql.Row <span class="cov0" title="0">{
+        return t.tx.QueryRowContext(ctx, query, args...)
+}</span>
+
+// Query executes a query that returns rows, typically a SELECT.
+func (t *transaction) Query(ctx context.Context, query string, args ...any) (*sql.Rows, error) <span class="cov0" title="0">{
+        return t.tx.QueryContext(ctx, query, args...)
+}</span>
+
+// Prepare prepares the given query for later execution.
+func (t *transaction) Prepare(ctx context.Context, query string) (*sql.Stmt, error) <span class="cov0" title="0">{
+        return t.tx.PrepareContext(ctx, query)
+}</span>
+
+// Stmt returns a transaction-specific prepared statement from an existing statement.
+func (t *transaction) Stmt(ctx context.Context, stmt *sql.Stmt) *sql.Stmt <span class="cov0" title="0">{
+        return t.tx.StmtContext(ctx, stmt)
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

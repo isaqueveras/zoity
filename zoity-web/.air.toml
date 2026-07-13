@@ -1,0 +1,13 @@
+root = "."
+tmp_dir = "bin"
+
+[build]
+  cmd = "make templ && go build -o ./bin/zoity-app ./cmd/app"
+  bin = "bin/main"
+  full_bin = "./bin/zoity-app"
+  include_ext = ["go", "templ"]
+  exclude_dir = ["vendor", "bin", "services", "gen", "e2e"]
+
+[log]
+  level = "info"
+  color = true

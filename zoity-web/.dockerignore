@@ -1,0 +1,10 @@
+.air.toml
+.coverage.*
+Makefile
+README.md
+bin/
+tmp/
+.env
+.env.example
+.gitignore
+database.sql
