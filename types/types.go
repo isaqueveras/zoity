@@ -14,6 +14,7 @@ type Service struct {
 	Ports   []int64  `yaml:"ports"`
 
 	Process *os.Process
+	Stopped bool
 }
 
 func (s *Service) Kill() {
