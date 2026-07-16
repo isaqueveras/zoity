@@ -9,7 +9,9 @@ import (
 
 	"zoity/core"
 	"zoity/core/config"
-	"zoity/services/database"
+	"zoity/resources/pages"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -23,8 +25,21 @@ func main() {
 
 	app := core.NewApp(cfg)
 
-	conn := database.OpenConnections(app)
-	defer conn.CloseConnections()
+	app.Router.GET("/dashboard", func(ctx *gin.Context) {
+		pages.DashboardPage().Render(ctx.Request.Context(), ctx.Writer)
+	})
+
+	app.Router.GET("/services", func(ctx *gin.Context) {
+		pages.ListServicesPage().Render(ctx.Request.Context(), ctx.Writer)
+	})
+
+	app.Router.GET("/flows", func(ctx *gin.Context) {
+		pages.ListFlowsPage().Render(ctx.Request.Context(), ctx.Writer)
+	})
+
+	app.Router.GET("/settings", func(ctx *gin.Context) {
+		pages.ListSettingsPage().Render(ctx.Request.Context(), ctx.Writer)
+	})
 
 	if err := app.Router.Run(app.Config.Servers[config.ServerDefault].GetAddress()); err != nil {
 		slog.Error("Erro ao inicializar servidor da aplicação")
