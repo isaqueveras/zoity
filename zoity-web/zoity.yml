@@ -1,0 +1,67 @@
+name: payment
+
+requirements:
+  go: ">=1.24"
+  docker: ">=28"
+  node: ">=22"
+  sqlc: ">=1.30"
+  golangci-lint: ">=2"
+  git: ">=2.43.0"
+
+git:
+  submodules: true
+
+containers:
+  databases:
+    compose:
+      file: docker/postgres.yml
+    services:
+      - postgres
+
+  observability:
+    compose:
+      file: docker/monitoring.yml
+    services:
+      - grafana
+      - prometheus
+
+steps:
+  install:
+    - ./scripts/install-tools-local.sh  
+
+ide:
+  vscode:
+    extensions:
+      - golang.Go
+      - bradlc.vscode-tailwindcss
+      - anthropic.claude-code
+
+services:
+  api:
+    command: go run cmd/api/main.go
+    env:
+      - CONFIG_PAYMENT_API: ${ZOITY_CONFIG}/config_files/payment/payment_api.json
+    healthcheck:
+      http: http://localhost:8080/health
+    ports:
+      - 8080
+      - 8181
+
+  worker:
+    command: go run cmd/worker/main.go
+    env:
+      - CONFIG_PAYMENT_WORKER: ${ZOITY_CONFIG}/config_files/payment_worker.json
+    healthcheck:
+      running: true
+    env_file: cmd/worker/.env.dev
+    depends-on:
+      - api
+    containers:
+      - postgres
+      - redis
+
+links:
+  web: http://localhost:8080
+  swagger: http://localhost:8080/swagger
+  grafana: http://localhost:3000
+  prometheus: http://localhost:9090

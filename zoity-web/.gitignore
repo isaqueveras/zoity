@@ -2,3 +2,4 @@
 bin/
 tmp/
 .env
+*_templ.go
